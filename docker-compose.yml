@@ -3,6 +3,7 @@ version: '3.8'
 services:
   lodestone-core:
     image: dizzlehd/lodestone-core:latest
+    pull_policy: always
     container_name: lodestone-core
     restart: unless-stopped
     ports:
@@ -12,6 +13,7 @@ services:
 
   lodestone-dashboard:
     image: dizzlehd/lodestone-dashboard:latest
+    pull_policy: always
     container_name: lodestone-dashboard
     restart: unless-stopped
     ports:
