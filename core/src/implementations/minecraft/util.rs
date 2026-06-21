@@ -276,12 +276,9 @@ pub async fn get_paper_jar_url(
         .text()
         .await
         .ok()?;
-    let builds: serde_json::Value = serde_json::from_str(&builds_text).ok()?;
-    let mut builds = builds.get("builds")?.as_array()?.iter();
-
-    let builds_vec: Vec<_> = builds.collect();
+    let builds_vec: Vec<serde_json::Value> = serde_json::from_str(&builds_text).ok()?;
     let build = if let Some(PaperBuildVersion(b)) = paper_build_version {
-        builds_vec.iter().find(|build| build.get("build").and_then(|v| v.as_i64()).map_or(false, |n| n.eq(b)))?
+        builds_vec.iter().find(|build| build.get("id").and_then(|v| v.as_i64()).map_or(false, |n| n.eq(b)))?
     } else {
         let stable = builds_vec.iter()
             .filter(|build| {
@@ -291,8 +288,8 @@ pub async fn get_paper_jar_url(
                     .map_or(false, |c| c.eq_ignore_ascii_case("default") || c.eq_ignore_ascii_case("stable"))
             })
             .max_by(|a, b| {
-                let a = a.get("build").and_then(|v| v.as_i64()).unwrap_or(0);
-                let b = b.get("build").and_then(|v| v.as_i64()).unwrap_or(0);
+                let a = a.get("id").and_then(|v| v.as_i64()).unwrap_or(0);
+                let b = b.get("id").and_then(|v| v.as_i64()).unwrap_or(0);
                 a.cmp(&b)
             });
         if let Some(b) = stable {
@@ -300,13 +297,13 @@ pub async fn get_paper_jar_url(
         } else {
             builds_vec.iter()
                 .max_by(|a, b| {
-                    let a = a.get("build").and_then(|v| v.as_i64()).unwrap_or(0);
-                    let b = b.get("build").and_then(|v| v.as_i64()).unwrap_or(0);
+                    let a = a.get("id").and_then(|v| v.as_i64()).unwrap_or(0);
+                    let b = b.get("id").and_then(|v| v.as_i64()).unwrap_or(0);
                     a.cmp(&b)
                 })?
         }
     };
-    let build_version = build.get("build")?.as_i64()?;
+    let build_version = build.get("id")?.as_i64()?;
 
     let download_url = build
         .get("downloads")?
@@ -448,14 +445,11 @@ pub async fn get_velocity_jar_url(
         .text()
         .await
         .ok()?;
-    let builds: serde_json::Value = serde_json::from_str(&builds_text).ok()?;
-    let mut builds = builds.get("builds")?.as_array()?.iter();
-
-    let builds_vec: Vec<_> = builds.collect();
+    let builds_vec: Vec<serde_json::Value> = serde_json::from_str(&builds_text).ok()?;
     let build = if let Some(VelocityBuildVersion(b)) = velocity_build_version {
         builds_vec.iter().find(|build| {
             build
-                .get("build")
+                .get("id")
                 .and_then(|v| v.as_i64())
                 .map_or(false, |n| n.eq(b))
         })?
@@ -468,8 +462,8 @@ pub async fn get_velocity_jar_url(
                     .map_or(false, |c| c.eq_ignore_ascii_case("default") || c.eq_ignore_ascii_case("stable"))
             })
             .max_by(|a, b| {
-                let a = a.get("build").and_then(|v| v.as_i64()).unwrap_or(0);
-                let b = b.get("build").and_then(|v| v.as_i64()).unwrap_or(0);
+                let a = a.get("id").and_then(|v| v.as_i64()).unwrap_or(0);
+                let b = b.get("id").and_then(|v| v.as_i64()).unwrap_or(0);
                 a.cmp(&b)
             });
         if let Some(b) = stable {
@@ -477,13 +471,13 @@ pub async fn get_velocity_jar_url(
         } else {
             builds_vec.iter()
                 .max_by(|a, b| {
-                    let a = a.get("build").and_then(|v| v.as_i64()).unwrap_or(0);
-                    let b = b.get("build").and_then(|v| v.as_i64()).unwrap_or(0);
+                    let a = a.get("id").and_then(|v| v.as_i64()).unwrap_or(0);
+                    let b = b.get("id").and_then(|v| v.as_i64()).unwrap_or(0);
                     a.cmp(&b)
                 })?
         }
     };
-    let build_version = build.get("build")?.as_i64()?;
+    let build_version = build.get("id")?.as_i64()?;
 
     let download_url = build
         .get("downloads")?
