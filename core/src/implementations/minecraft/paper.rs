@@ -7,7 +7,7 @@ pub async fn get_paper_minecraft_versions() -> Result<Vec<String>, Error> {
     let http = reqwest::Client::new();
 
     let response: Value = serde_json::from_str(
-        http.get("https://api.papermc.io/v2/projects/paper")
+        http.get("https://fill.papermc.io/v3/projects/paper")
             .send()
             .await
             .context("Failed to get paper versions")?

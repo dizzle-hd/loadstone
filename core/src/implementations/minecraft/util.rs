@@ -267,7 +267,7 @@ pub async fn get_paper_jar_url(
 
     let builds_text = client
         .get(format!(
-            "https://api.papermc.io/v2/projects/paper/versions/{}/builds/",
+            "https://fill.papermc.io/v3/projects/paper/versions/{}/builds",
             version
         ))
         .send()
@@ -308,17 +308,15 @@ pub async fn get_paper_jar_url(
     };
     let build_version = build.get("build")?.as_i64()?;
 
+    let download_url = build
+        .get("downloads")?
+        .get("server:default")?
+        .get("url")?
+        .as_str()?
+        .to_string();
+
     Some((
-        format!(
-            "https://api.papermc.io/v2/projects/paper/versions/{}/builds/{}/downloads/{}",
-            version,
-            build_version,
-            build
-                .get("downloads")?
-                .get("application")?
-                .get("name")?
-                .as_str()?,
-        ),
+        download_url,
         Flavour::Paper {
             build_version: Some(PaperBuildVersion(build_version)),
         },
@@ -441,7 +439,7 @@ pub async fn get_velocity_jar_url(
 
     let builds_text = client
         .get(format!(
-            "https://api.papermc.io/v2/projects/velocity/versions/{}/builds/",
+            "https://fill.papermc.io/v3/projects/velocity/versions/{}/builds",
             version
         ))
         .send()
@@ -487,17 +485,15 @@ pub async fn get_velocity_jar_url(
     };
     let build_version = build.get("build")?.as_i64()?;
 
+    let download_url = build
+        .get("downloads")?
+        .get("server:default")?
+        .get("url")?
+        .as_str()?
+        .to_string();
+
     Some((
-        format!(
-            "https://api.papermc.io/v2/projects/velocity/versions/{}/builds/{}/downloads/{}",
-            version,
-            build_version,
-            build
-                .get("downloads")?
-                .get("application")?
-                .get("name")?
-                .as_str()?,
-        ),
+        download_url,
         Flavour::Velocity {
             build_version: Some(VelocityBuildVersion(build_version)),
         },

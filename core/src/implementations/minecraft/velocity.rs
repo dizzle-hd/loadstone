@@ -7,7 +7,7 @@ pub async fn get_velocity_versions() -> Result<Vec<String>, Error> {
     let http = reqwest::Client::new();
 
     let response: Value = serde_json::from_str(
-        http.get("https://api.papermc.io/v2/projects/velocity")
+        http.get("https://fill.papermc.io/v3/projects/velocity")
             .send()
             .await
             .context("Failed to get velocity versions")?
