@@ -1,4 +1,4 @@
-use color_eyre::eyre::{eyre, Context, ContextCompat};
+use color_eyre::eyre::{Context, ContextCompat};
 use serde_json::Value;
 
 use crate::error::Error;
@@ -18,19 +18,25 @@ pub async fn get_velocity_versions() -> Result<Vec<String>, Error> {
     )
     .context("Failed to get velocity versions, response is not valid json")?;
 
-    let mut versions = response
+    // v3 API: versions is an object { "3.0.0": ["3.4.0-SNAPSHOT", ...], ... }
+    let versions_obj = response
         .get("versions")
         .context("Failed to get velocity versions, response does not contain versions")?
-        .as_array()
-        .context("Failed to get velocity versions, response is not an array")?
-        .iter()
-        .map(|version| {
-            version
-                .as_str()
-                .ok_or_else(|| eyre!("Version string is not a string").into())
-                .map(|v| v.to_string())
+        .as_object()
+        .context("Failed to get velocity versions, versions is not an object")?;
+
+    let mut versions: Vec<String> = versions_obj
+        .values()
+        .flat_map(|arr| {
+            arr.as_array()
+                .map(|a| {
+                    a.iter()
+                        .filter_map(|v| v.as_str().map(|s| s.to_string()))
+                        .collect::<Vec<_>>()
+                })
+                .unwrap_or_default()
         })
-        .collect::<Result<Vec<String>, Error>>()?;
+        .collect();
 
     versions.reverse();
 
