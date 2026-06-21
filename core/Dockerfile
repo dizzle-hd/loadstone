@@ -20,7 +20,7 @@ RUN mkdir -p dashboard/src-tauri/src && \
 ENV DATABASE_URL=sqlite:///app/dev.db
 RUN cargo build --release --features "vendored-openssl" -p lodestone_core
 
-FROM debian:bullseye-slim AS production
+FROM ubuntu:24.04 AS production
 
 RUN apt-get update \
   && apt-get install -y ca-certificates \
