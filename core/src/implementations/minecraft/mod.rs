@@ -234,10 +234,14 @@ impl MinecraftInstance {
         }
         .context("Failed to get versions")?;
 
+        let version_description = match flavour {
+            FlavourKind::Velocity => "The version of Velocity to use",
+            _ => "The version of Minecraft to use",
+        };
         let version_setting = SettingManifest::new_value_with_type(
             "version".to_string(),
             "Version".to_string(),
-            "The version of minecraft to use".to_string(),
+            version_description.to_string(),
             Some(ConfigurableValue::Enum(versions.first().unwrap().clone())),
             ConfigurableValueType::Enum { options: versions },
             None,

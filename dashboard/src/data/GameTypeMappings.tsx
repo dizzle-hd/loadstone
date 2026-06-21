@@ -39,6 +39,8 @@ export const game_to_game_icon = (game: Game) =>
             Fabric: () => '/assets/minecraft-fabric.png',
             Forge: () => '/assets/minecraft-forge.png',
             Paper: () => '/assets/minecraft-paper.png',
+            Other: ({ name }) =>
+              name === 'Velocity' ? '/assets/minecraft-velocity.svg' : unknown_icon,
           },
           () => unknown_icon
         )
