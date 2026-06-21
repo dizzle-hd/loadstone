@@ -288,7 +288,7 @@ pub async fn get_paper_jar_url(
                 build
                     .get("channel")
                     .and_then(|c| c.as_str())
-                    .map_or(false, |c| c == "default" || c == "stable")
+                    .map_or(false, |c| c.eq_ignore_ascii_case("default") || c.eq_ignore_ascii_case("stable"))
             })
             .max_by(|a, b| {
                 let a = a.get("build").and_then(|v| v.as_i64()).unwrap_or(0);
@@ -467,7 +467,7 @@ pub async fn get_velocity_jar_url(
                 build
                     .get("channel")
                     .and_then(|c| c.as_str())
-                    .map_or(false, |c| c == "default" || c == "stable")
+                    .map_or(false, |c| c.eq_ignore_ascii_case("default") || c.eq_ignore_ascii_case("stable"))
             })
             .max_by(|a, b| {
                 let a = a.get("build").and_then(|v| v.as_i64()).unwrap_or(0);
