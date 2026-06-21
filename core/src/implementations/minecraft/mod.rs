@@ -578,11 +578,13 @@ impl MinecraftInstance {
             .await
             .ok_or_else({
                 || {
-                    eyre!(
+                    let msg = format!(
                         "Could not find a {} server.jar for version {}",
                         flavour_name,
                         config.version
-                    )
+                    );
+                    error!("{}", msg);
+                    eyre!("{}", msg)
                 }
             })?;
         let jar_name = match flavour {

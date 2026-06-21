@@ -455,7 +455,7 @@ pub async fn get_velocity_jar_url(
                 build
                     .get("channel")
                     .and_then(|c| c.as_str())
-                    .map_or(false, |c| c == "default")
+                    .map_or(false, |c| c == "default" || c == "stable")
             })
             .max_by(|a, b| {
                 let a = a.get("build").and_then(|v| v.as_i64()).unwrap_or(0);
