@@ -1,17 +1,21 @@
-FROM node:21 as build
+FROM node:21 AS build
 
 WORKDIR /app
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
-COPY package*.json /app/
+COPY package*.json ./
 RUN npm ci --legacy-peer-deps
 
 COPY . ./
 RUN npm run build
 
-FROM nginx
+FROM nginx:alpine
 
-WORKDIR /usr/share/nginx/html
+COPY --from=build /app/out/ /usr/share/nginx/html/
 
-COPY --from=build /app/out/ ./
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

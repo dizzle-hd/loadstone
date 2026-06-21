@@ -3,6 +3,7 @@ import type { FabricInstallerVersion } from './FabricInstallerVersion';
 import type { FabricLoaderVersion } from './FabricLoaderVersion';
 import type { ForgeBuildVersion } from './ForgeBuildVersion';
 import type { PaperBuildVersion } from './PaperBuildVersion';
+import type { VelocityBuildVersion } from './VelocityBuildVersion';
 
 export type MinecraftFlavour =
   | 'vanilla'
@@ -14,4 +15,5 @@ export type MinecraftFlavour =
     }
   | { paper: { build_version: PaperBuildVersion | null } }
   | 'spigot'
-  | { forge: { build_version: ForgeBuildVersion | null } };
+  | { forge: { build_version: ForgeBuildVersion | null } }
+  | { velocity: { build_version: VelocityBuildVersion | null } };

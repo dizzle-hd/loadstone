@@ -72,6 +72,11 @@ impl From<Flavour> for Game {
             Flavour::Forge { .. } => Self::MinecraftJava {
                 variant: MinecraftVariant::Forge,
             },
+            Flavour::Velocity { .. } => Self::MinecraftJava {
+                variant: MinecraftVariant::Other {
+                    name: "Velocity".to_string(),
+                },
+            },
         }
     }
 }

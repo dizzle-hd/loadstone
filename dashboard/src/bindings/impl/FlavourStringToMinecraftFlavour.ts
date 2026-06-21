@@ -14,6 +14,8 @@ export function flavourStringToMinecraftFlavour(
       return 'spigot';
     case 'forge':
       return { forge: { build_version: null } };
+    case 'velocity':
+      return { velocity: { build_version: null } };
   }
   throw new Error(`Unknown flavour: ${flavour}`);
 }

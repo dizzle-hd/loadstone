@@ -6,6 +6,7 @@ use tokio::io::AsyncBufReadExt;
 
 use super::{
     FabricInstallerVersion, FabricLoaderVersion, Flavour, ForgeBuildVersion, PaperBuildVersion,
+    VelocityBuildVersion,
 };
 use crate::error::Error;
 
@@ -61,6 +62,7 @@ pub async fn get_server_jar_url(version: &str, flavour: &Flavour) -> Option<(Str
         Flavour::Paper { build_version } => get_paper_jar_url(version, build_version).await,
         Flavour::Spigot => todo!(),
         Flavour::Forge { build_version } => get_forge_jar_url(version, build_version).await.ok(),
+        Flavour::Velocity { build_version } => get_velocity_jar_url(version, build_version).await,
     }
 }
 
@@ -278,21 +280,18 @@ pub async fn get_paper_jar_url(
     let mut builds = builds.get("builds")?.as_array()?.iter();
 
     let build = if let Some(PaperBuildVersion(b)) = paper_build_version {
-        builds.find(|build| build.get("build").unwrap().as_i64().unwrap().eq(b))?
+        builds.find(|build| build.get("build").and_then(|v| v.as_i64()).map_or(false, |n| n.eq(b)))?
     } else {
         builds
             .filter(|build| {
                 build
                     .get("channel")
-                    .unwrap()
-                    .as_str()
-                    .unwrap()
-                    .to_string()
-                    .eq("default")
+                    .and_then(|c| c.as_str())
+                    .map_or(false, |c| c == "default")
             })
             .max_by(|a, b| {
-                let a = a.get("build").unwrap().as_i64().unwrap();
-                let b = b.get("build").unwrap().as_i64().unwrap();
+                let a = a.get("build").and_then(|v| v.as_i64()).unwrap_or(0);
+                let b = b.get("build").and_then(|v| v.as_i64()).unwrap_or(0);
                 a.cmp(&b)
             })?
     };
@@ -420,6 +419,66 @@ pub async fn get_jre_url(version: &str) -> Option<(String, u64)> {
             major_java_version, os, arch
         ),
         major_java_version,
+    ))
+}
+
+pub async fn get_velocity_jar_url(
+    version: &str,
+    velocity_build_version: &Option<VelocityBuildVersion>,
+) -> Option<(String, Flavour)> {
+    let client = reqwest::Client::new();
+
+    let builds_text = client
+        .get(format!(
+            "https://api.papermc.io/v2/projects/velocity/versions/{}/builds/",
+            version
+        ))
+        .send()
+        .await
+        .ok()?
+        .text()
+        .await
+        .ok()?;
+    let builds: serde_json::Value = serde_json::from_str(&builds_text).ok()?;
+    let mut builds = builds.get("builds")?.as_array()?.iter();
+
+    let build = if let Some(VelocityBuildVersion(b)) = velocity_build_version {
+        builds.find(|build| {
+            build
+                .get("build")
+                .and_then(|v| v.as_i64())
+                .map_or(false, |n| n.eq(b))
+        })?
+    } else {
+        builds
+            .filter(|build| {
+                build
+                    .get("channel")
+                    .and_then(|c| c.as_str())
+                    .map_or(false, |c| c == "default")
+            })
+            .max_by(|a, b| {
+                let a = a.get("build").and_then(|v| v.as_i64()).unwrap_or(0);
+                let b = b.get("build").and_then(|v| v.as_i64()).unwrap_or(0);
+                a.cmp(&b)
+            })?
+    };
+    let build_version = build.get("build")?.as_i64()?;
+
+    Some((
+        format!(
+            "https://api.papermc.io/v2/projects/velocity/versions/{}/builds/{}/downloads/{}",
+            version,
+            build_version,
+            build
+                .get("downloads")?
+                .get("application")?
+                .get("name")?
+                .as_str()?,
+        ),
+        Flavour::Velocity {
+            build_version: Some(VelocityBuildVersion(build_version)),
+        },
     ))
 }
 

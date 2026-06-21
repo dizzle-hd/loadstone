@@ -72,7 +72,10 @@ export const game_to_description = (game: Game) =>
           'High-performance Spigot fork that aims to fix gameplay and mechanics inconsistencies.',
         Spigot: () =>
           'Modified Minecraft server software that supports plugins, offering enhanced performance and customization options.',
-        Other: ({ name }) => `Unknown Minecraft variant: ${name}`,
+        Other: ({ name }) =>
+          name === 'Velocity'
+            ? 'Next-generation high performance Minecraft proxy.'
+            : `Unknown Minecraft variant: ${name}`,
       }),
     Generic: ({ game_name }) => `Unknown game: ${game_name}`,
   });
@@ -100,6 +103,13 @@ export const HandlerGameType_to_Game: Record<HandlerGameType, Game> = {
     type: 'MinecraftJava',
     variant: {
       type: 'Paper',
+    },
+  },
+  MinecraftVelocity: {
+    type: 'MinecraftJava',
+    variant: {
+      type: 'Other',
+      name: 'Velocity',
     },
   },
 };

@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  lodestone-core:
+    build:
+      context: .
+      dockerfile: core/Dockerfile
+    container_name: lodestone-core
+    restart: unless-stopped
+    ports:
+      - "16662:16662"
+    volumes:
+      - lodestone-data:/home/user/.lodestone
+
+  lodestone-dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: lodestone-dashboard
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - lodestone-core
+
+volumes:
+  lodestone-data:

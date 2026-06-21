@@ -1,41 +1,40 @@
-FROM rust as build
+FROM rust AS build
 
-# create and enter app directory
 WORKDIR /app
 
-# copy over project files
-COPY . ./
+# Workspace-Dateien für Cargo
+COPY Cargo.toml Cargo.lock rust-toolchain.toml ./
 
-# build app using 'release' profile
-RUN cargo build --release --features "vendored-openssl"
+# Nur core und dashboard/src-tauri sind Workspace-Members
+# Wir brauchen aber nur core, also erstellen wir ein Dummy für den anderen Member
+COPY core ./core
 
-FROM debian:bullseye-slim as production
+# Dummy für src-tauri damit der Workspace aufgelöst werden kann
+RUN mkdir -p dashboard/src-tauri/src && \
+    echo '[package]\nname = "lodestone-client"\nversion = "0.0.1"\nedition = "2021"' > dashboard/src-tauri/Cargo.toml && \
+    echo 'fn main() {}' > dashboard/src-tauri/src/main.rs
 
-#
+RUN cargo build --release --features "vendored-openssl" -p lodestone_core
+
+FROM debian:bullseye-slim AS production
+
 RUN apt-get update \
   && apt-get install -y ca-certificates \
   && update-ca-certificates \
   && rm -rf /var/lib/apt/lists/*
 
-# create and enter app directory
 WORKDIR /app
 
-# copy over built app
-COPY --from=build /app/target/release/main ./
+COPY --from=build /app/target/release/lodestone_core ./
 
-# specify default port
 EXPOSE 16662
 
 RUN groupadd user && useradd -g user user
-
 RUN mkdir -p /home/user/.lodestone
-RUN chown user /app
-RUN chown user /home/user/.lodestone
+RUN chown user /app /home/user/.lodestone
 
 USER user
 
-# specify persistent volume
 VOLUME ["/home/user/.lodestone"]
 
-# start lodestone_core
-CMD ["./main"]
+CMD ["./lodestone_core"]
