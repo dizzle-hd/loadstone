@@ -279,21 +279,32 @@ pub async fn get_paper_jar_url(
     let builds: serde_json::Value = serde_json::from_str(&builds_text).ok()?;
     let mut builds = builds.get("builds")?.as_array()?.iter();
 
+    let builds_vec: Vec<_> = builds.collect();
     let build = if let Some(PaperBuildVersion(b)) = paper_build_version {
-        builds.find(|build| build.get("build").and_then(|v| v.as_i64()).map_or(false, |n| n.eq(b)))?
+        builds_vec.iter().find(|build| build.get("build").and_then(|v| v.as_i64()).map_or(false, |n| n.eq(b)))?
     } else {
-        builds
+        let stable = builds_vec.iter()
             .filter(|build| {
                 build
                     .get("channel")
                     .and_then(|c| c.as_str())
-                    .map_or(false, |c| c == "default")
+                    .map_or(false, |c| c == "default" || c == "stable")
             })
             .max_by(|a, b| {
                 let a = a.get("build").and_then(|v| v.as_i64()).unwrap_or(0);
                 let b = b.get("build").and_then(|v| v.as_i64()).unwrap_or(0);
                 a.cmp(&b)
-            })?
+            });
+        if let Some(b) = stable {
+            b
+        } else {
+            builds_vec.iter()
+                .max_by(|a, b| {
+                    let a = a.get("build").and_then(|v| v.as_i64()).unwrap_or(0);
+                    let b = b.get("build").and_then(|v| v.as_i64()).unwrap_or(0);
+                    a.cmp(&b)
+                })?
+        }
     };
     let build_version = build.get("build")?.as_i64()?;
 
@@ -442,15 +453,16 @@ pub async fn get_velocity_jar_url(
     let builds: serde_json::Value = serde_json::from_str(&builds_text).ok()?;
     let mut builds = builds.get("builds")?.as_array()?.iter();
 
+    let builds_vec: Vec<_> = builds.collect();
     let build = if let Some(VelocityBuildVersion(b)) = velocity_build_version {
-        builds.find(|build| {
+        builds_vec.iter().find(|build| {
             build
                 .get("build")
                 .and_then(|v| v.as_i64())
                 .map_or(false, |n| n.eq(b))
         })?
     } else {
-        builds
+        let stable = builds_vec.iter()
             .filter(|build| {
                 build
                     .get("channel")
@@ -461,7 +473,17 @@ pub async fn get_velocity_jar_url(
                 let a = a.get("build").and_then(|v| v.as_i64()).unwrap_or(0);
                 let b = b.get("build").and_then(|v| v.as_i64()).unwrap_or(0);
                 a.cmp(&b)
-            })?
+            });
+        if let Some(b) = stable {
+            b
+        } else {
+            builds_vec.iter()
+                .max_by(|a, b| {
+                    let a = a.get("build").and_then(|v| v.as_i64()).unwrap_or(0);
+                    let b = b.get("build").and_then(|v| v.as_i64()).unwrap_or(0);
+                    a.cmp(&b)
+                })?
+        }
     };
     let build_version = build.get("build")?.as_i64()?;
 
