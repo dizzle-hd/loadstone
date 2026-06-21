@@ -2,9 +2,7 @@ version: '3.8'
 
 services:
   lodestone-core:
-    build:
-      context: .
-      dockerfile: core/Dockerfile
+    image: dizzlehd/lodestone-core:latest
     container_name: lodestone-core
     restart: unless-stopped
     ports:
@@ -13,9 +11,7 @@ services:
       - lodestone-data:/home/user/.lodestone
 
   lodestone-dashboard:
-    build:
-      context: ./dashboard
-      dockerfile: Dockerfile
+    image: dizzlehd/lodestone-dashboard:latest
     container_name: lodestone-dashboard
     restart: unless-stopped
     ports:

@@ -9,11 +9,15 @@ COPY Cargo.toml Cargo.lock rust-toolchain.toml ./
 # Wir brauchen aber nur core, also erstellen wir ein Dummy für den anderen Member
 COPY core ./core
 
+# Dev-DB für SQLx Compile-Zeit-Prüfung
+COPY dev.db ./dev.db
+
 # Dummy für src-tauri damit der Workspace aufgelöst werden kann
 RUN mkdir -p dashboard/src-tauri/src && \
     echo '[package]\nname = "lodestone-client"\nversion = "0.0.1"\nedition = "2021"' > dashboard/src-tauri/Cargo.toml && \
     echo 'fn main() {}' > dashboard/src-tauri/src/main.rs
 
+ENV DATABASE_URL=sqlite:///app/dev.db
 RUN cargo build --release --features "vendored-openssl" -p lodestone_core
 
 FROM debian:bullseye-slim AS production
