@@ -26,7 +26,9 @@ app.get("/sse", async (req, res) => {
   await server.connect(transport);
 });
 
-app.post("/messages", express.raw({ type: "*/*" }), async (req, res) => {
+// NOTE: do NOT add body-parsing middleware here — SSEServerTransport
+// reads the raw request stream itself in handlePostMessage.
+app.post("/messages", async (req, res) => {
   const sessionId = req.query.sessionId as string;
   const transport = transports.get(sessionId);
   if (!transport) {
