@@ -122,5 +122,21 @@ services:
     depends_on:
       - lodestone-core
 
+  lodestone-mcp:
+    image: dizzlehd/lodestone-mcp:latest
+    pull_policy: always
+    container_name: lodestone-mcp
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    volumes:
+      - mcp-data:/data
+    depends_on:
+      - lodestone-core
+    environment:
+      - LODESTONE_URL=http://lodestone-core:16662
+      - MCP_PORT=3001
+
 volumes:
   lodestone-data:
+  mcp-data:
