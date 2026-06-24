@@ -3,6 +3,7 @@ import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import express from "express";
 import { registerInstanceTools } from "./tools/instances.js";
 import { registerFolderTools } from "./tools/folders.js";
+import { registerFileTools } from "./tools/files.js";
 
 const PORT = parseInt(process.env.MCP_PORT ?? "3001");
 
@@ -13,6 +14,7 @@ const server = new McpServer({
 
 registerInstanceTools(server);
 registerFolderTools(server);
+registerFileTools(server);
 
 const app = express();
 
