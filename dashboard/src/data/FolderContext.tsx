@@ -2,6 +2,27 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 
 const STORAGE_KEY = 'lodestone_folders';
 
+/**
+ * Generate a unique id. crypto.randomUUID() only exists in a secure
+ * context (HTTPS or localhost); over plain HTTP on a LAN IP it is
+ * undefined and throws, so fall back to a manual generator.
+ */
+function genId(): string {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+    try {
+      return crypto.randomUUID();
+    } catch {
+      /* fall through */
+    }
+  }
+  return (
+    'f-' +
+    Date.now().toString(36) +
+    '-' +
+    Math.random().toString(36).slice(2, 10)
+  );
+}
+
 export interface Folder {
   id: string;
   name: string;
@@ -41,7 +62,7 @@ export function FolderProvider({ children }: { children: React.ReactNode }) {
   }, [folders]);
 
   function createFolder(name: string) {
-    const id = crypto.randomUUID();
+    const id = genId();
     setFolders((prev) => ({ ...prev, [id]: { id, name, instanceUuids: [] } }));
   }
 
