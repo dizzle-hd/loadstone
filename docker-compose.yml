@@ -136,10 +136,9 @@ services:
     environment:
       - LODESTONE_URL=http://lodestone-core:16662
       - MCP_PORT=3001
-      # Auto-login: the MCP server fetches and refreshes its own JWT.
-      # Set these in Dokploy. A static LODESTONE_TOKEN also still works.
-      - LODESTONE_USERNAME=${LODESTONE_USERNAME}
-      - LODESTONE_PASSWORD=${LODESTONE_PASSWORD}
+      # Static JWT from POST /user/login. Set the value in Dokploy.
+      # (Auto-login via LODESTONE_USERNAME/PASSWORD is also supported.)
+      - LODESTONE_TOKEN=${LODESTONE_TOKEN}
 
 volumes:
   lodestone-data:
